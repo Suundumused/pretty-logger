@@ -1,6 +1,6 @@
 ﻿# pretty-logger
 ### A simple, custom print and file logger for any project.
-![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111459.png?raw=true)
+![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111460.png?raw=true)
 ---
 ### Requirements
 **Minimum Version**: `python 3.3... ...`
