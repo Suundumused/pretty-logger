@@ -1,9 +1,9 @@
 ﻿# pretty-logger
 ### A simple, custom print and file logger for any project.
-![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111460.png?raw=true)
+![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111461.png?raw=true)
 ---
 ### Requirements
-**Minimum Version**: `python 3.3... ...`
+**Minimum Version**: `python 3.6... ...`
 
 ---
 ### Usage
@@ -13,7 +13,10 @@
 ---
 **Instancing**
 
-    console  =  type_terminal('SOFTWARE NAME', 'Log Output Folder', speed=0.998, time_format="%Y-%m-%d %H:%M:%S")
+    console  =  type_terminal('SOFTWARE NAME', 'Log Output Folder', speed=0.998, time_format="%Y-%m-%d %H:%M:%S", pointer_char='⚮')
+
+    `pointer_char:str='⚮'` Refers to the character that will be used as the animated console cursor.
+
  - You can instantiate it at the beginning of the file after import and use it in any class/function.
 
 ---
@@ -62,10 +65,11 @@
         #anything else...
 ---
 ### Log File result
-    [program] ERROR: any error to log file -- 2024-02-06  22:36:28
-    ---------
-    [program] ERROR: any error to log file -- 2024-02-06  22:42:11 
-    ---------
+    | 2024-03-04 22:41:15 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
+    | 2024-03-04 22:41:45 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
+    | 2024-03-04 22:41:55 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
+    | 2024-03-04 22:43:17 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
+    | 2024-03-04 22:43:26 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
 ---
 ## 💖 Support Me
 

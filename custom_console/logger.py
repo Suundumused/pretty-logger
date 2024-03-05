@@ -32,7 +32,7 @@ class bcolors:
     
 
 class type_terminal(object):
-    def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S"):
+    def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):
         atexit.register(self.exit_handler)            
         self.software_name = name
         self.current_software_name = name
@@ -40,11 +40,10 @@ class type_terminal(object):
         self.speed = speed
         self.time_format = time_format
         self.pointer_runtime = False
+        self.pointer_char = pointer_char
         
         self.onflush = False
-        
         self.pointer_ref = ''
-        self.key_divisor = ''
                     
             
     def custom_logger(self, value):
@@ -57,9 +56,16 @@ class type_terminal(object):
     
             
     def fit_line_from_flush(self):
-        print(f'\n{self.key_divisor}')
+        print()
         
         
+    def _subtract(self, a, b):
+        if a >= b:
+            return a - b
+        else:
+            return b - a
+        
+
     def str_starting_type(self, start:str):
         match start.lower():
             case 'info':
@@ -77,27 +83,23 @@ class type_terminal(object):
     def log(self, start: str="info", middle: str="", write_file_path: bool=False, Flush: bool=False):
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime(self.time_format)
+        terminal_size = os.get_terminal_size().columns
         
-        key_divisor_file:str = ''
         key_divisor:str =''
         pointer_ref:str =''
         
         title_len = len(formatted_date_time)
         title_len_a = range(title_len+4)
-        title_len_b = range(title_len+2)
+        title_len_b = title_len+2
         
-        for index in title_len_a:
-            key_divisor += '-'
-            if index <= title_len:
-                key_divisor_file += '-'
-        key_divisor_file += '-'
-     
-        for _ in title_len_b:
-            pointer_ref += ' '
+        for index in title_len_a:    
+            if index < title_len_b:
+                pointer_ref += ' '
         
         self.key_divisor, self.pointer_ref = key_divisor, pointer_ref
     
         bg_color, fg_color = self.str_starting_type(start)
+        values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
         if not Flush:
             is_pointer_time = self.pointer_runtime
@@ -107,10 +109,7 @@ class type_terminal(object):
                 self.fit_line_from_flush()
                 self.onflush = False
 
-            values = (f'[{formatted_date_time}] :: ', f'[{start.upper()}]: {middle}', f'\n{key_divisor_file}')
-            values_text = (f'{formatted_date_time}', f'{start.upper()}', middle, f'\n{key_divisor}')
-            
-            print('\r' f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {bcolors.BG_BLACK}|{values_text[3]}')
+            print(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * self._subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|')
                         
             if is_pointer_time:
                 console.pointer()
@@ -118,13 +117,10 @@ class type_terminal(object):
             self.pointer_runtime = False
             self.onflush = True
             
-            values = (f'[{formatted_date_time}] :: ', f'[{start.upper()}]: ', middle)    
-            values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
-    
-            print('\r' f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {bcolors.BG_BLACK}|', end='\r', flush=True)            
+            print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * self._subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
         
         if write_file_path:
-            self.custom_logger(''.join(values))
+            self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
             
             
     def run_pointer(self):
@@ -150,7 +146,7 @@ class type_terminal(object):
                             time.sleep(1 - self.speed)
                     
                     if self.pointer_runtime:
-                        print('\r' + f'|{self.pointer_ref[:index]}⚮{self.pointer_ref[index+1:]}|', end='\r', flush=True)
+                        print(f'|{self.pointer_ref[:index]}{self.pointer_char}{self.pointer_ref[index+1:]}|', end='\r', flush=True)
                     else:
                         break
                         
@@ -172,7 +168,7 @@ class type_terminal(object):
         if self.pointer_runtime:
             self.pointer_runtime = False
             time.sleep(1 - self.speed)
-            print('\r', end='', flush=True)
+            print('', end='\r', flush=True)
             
             
 if __name__ == "__main__":
