@@ -63,7 +63,7 @@ class type_terminal(object):
         if a >= b:
             return a - b
         else:
-            return b - a
+            return 0
         
 
     def str_starting_type(self, start:str):
