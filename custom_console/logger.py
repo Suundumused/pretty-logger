@@ -52,7 +52,7 @@ class type_terminal(object):
                 log_file.write(f"{value}\n")
             
         except Exception as e:
-            self.log('error writing to log file', e)
+            self.log('Error writing to log file', e)
     
             
     def fit_line_from_flush(self):
@@ -85,18 +85,15 @@ class type_terminal(object):
         formatted_date_time = current_datetime.strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
         
-        key_divisor:str =''
         pointer_ref:str =''
         
         title_len = len(formatted_date_time)
-        title_len_a = range(title_len+4)
-        title_len_b = title_len+2
+        title_len_a = range(title_len+2)
         
-        for index in title_len_a:    
-            if index < title_len_b:
-                pointer_ref += ' '
+        for _ in title_len_a:    
+            pointer_ref += ' '
         
-        self.key_divisor, self.pointer_ref = key_divisor, pointer_ref
+        self.pointer_ref = pointer_ref
     
         bg_color, fg_color = self.str_starting_type(start)
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
@@ -128,8 +125,8 @@ class type_terminal(object):
         reverse = False
         range_pointer_ref = range(len(self.pointer_ref))
         
-        while self.pointer_runtime:
-            try:
+        try:
+            while self.pointer_runtime:
                 for i in range_pointer_ref:
                     if not self.pointer_runtime:
                         break
@@ -154,8 +151,8 @@ class type_terminal(object):
                     reverse = False
                 else:
                     reverse = True
-            except:
-                break
+        except:
+            return
             
             
     def pointer(self): 
