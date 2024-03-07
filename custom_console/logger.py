@@ -1,8 +1,42 @@
+import multiprocessing
 import os
-import threading
 import time
 
 from datetime import datetime 
+
+
+def run_pointer(speed:float, pointer_char:str, pointer_ref:str, shared_var):
+    reverse = False
+    range_pointer_ref = range(len(pointer_ref))
+    
+    try:
+        while shared_var.value:
+            for i in range_pointer_ref:
+                if not shared_var.value:
+                    break
+                
+                if reverse:
+                    index = len(pointer_ref)-1 - i
+                    
+                    if index != len(pointer_ref)-1:
+                        time.sleep(1 - speed)      
+                else:
+                    index = i
+                    
+                    if index != 0:
+                        time.sleep(1 - speed)
+                
+                if shared_var.value:
+                    print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
+                else:
+                    break
+                    
+            if reverse:
+                reverse = False
+            else:
+                reverse = True
+    except:
+        return
 
 
 class bcolors:
@@ -32,12 +66,14 @@ class bcolors:
 
 class type_terminal(object):
     def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):
+        self.manager = multiprocessing.Manager()
+        self.shared_var = self.manager.Value('pointer_runtime', False)
+        
         self.software_name = name
         self.current_software_name = name
         self.path = path
         self.speed = speed
         self.time_format = time_format
-        self.pointer_runtime = False
         self.pointer_char = pointer_char
         
         self.onflush = False
@@ -92,8 +128,8 @@ class type_terminal(object):
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
         if not Flush:
-            is_pointer_time = self.pointer_runtime
-            self.pointer_runtime = False
+            is_pointer_time = self.shared_var.value
+            self.shared_var.value = False
             
             if self.onflush:
                 self.fit_line_from_flush()
@@ -103,8 +139,9 @@ class type_terminal(object):
                         
             if is_pointer_time:
                 console.pointer()
+                pass
         else:
-            self.pointer_runtime = False
+            self.shared_var.value = False
             self.onflush = True
             
             print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * self._subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
@@ -113,43 +150,10 @@ class type_terminal(object):
             self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
             
             
-    def run_pointer(self):
-        self.pointer_runtime = True
-        reverse = False
-        range_pointer_ref = range(len(self.pointer_ref))
-        
-        try:
-            while self.pointer_runtime:
-                for i in range_pointer_ref:
-                    if not self.pointer_runtime:
-                        break
-                    
-                    if reverse:
-                        index = len(self.pointer_ref)-1 - i
-                        
-                        if index != len(self.pointer_ref)-1:
-                            time.sleep(1 - self.speed)      
-                    else:
-                        index = i
-                        
-                        if index != 0:
-                            time.sleep(1 - self.speed)
-                    
-                    if self.pointer_runtime:
-                        print(f'|{self.pointer_ref[:index]}{self.pointer_char}{self.pointer_ref[index+1:]}|', end='\r', flush=True)
-                    else:
-                        break
-                        
-                if reverse:
-                    reverse = False
-                else:
-                    reverse = True
-        except:
-            return
-            
-            
-    def pointer(self): 
-        pointer_run = threading.Thread(target=self.run_pointer)
+    def pointer(self):
+        self.shared_var.value = True
+                
+        pointer_run = multiprocessing.Process(target=run_pointer, args=(self.speed, self.pointer_char, self.pointer_ref, self.shared_var, ))
         pointer_run.daemon = True
         pointer_run.start()
             
