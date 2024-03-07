@@ -66,10 +66,7 @@ class bcolors:
     
 
 class type_terminal(object):
-    def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):
-        self.manager = multiprocessing.Manager()
-        self.shared_var = self.manager.Value('pointer_runtime', False)
-        
+    def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):        
         self.software_name = name
         self.current_software_name = name
         self.path = path
@@ -109,17 +106,15 @@ class type_terminal(object):
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
-    
         self.title_len = range(len(formatted_date_time)+2)
     
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
+        is_pointer_time = self.pointer_run.is_alive()
+        if is_pointer_time:
+            self.pointer_run.terminate()
+        
         if not Flush:
-            is_pointer_time = self.pointer_run.is_alive()
-                
-            if is_pointer_time:
-                self.pointer_run.terminate()
-            
             if self.onflush:
                 print()
                 self.onflush = False
@@ -129,9 +124,7 @@ class type_terminal(object):
             if is_pointer_time:
                 console.pointer()
         else:
-            self.pointer_run.terminate()
             self.onflush = True
-            
             print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
         
         if write_file_path:
