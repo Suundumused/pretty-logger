@@ -2,7 +2,14 @@ import multiprocessing
 import os
 import time
 
-from datetime import datetime 
+from datetime import datetime
+
+
+def _subtract(a, b):
+        if a >= b:
+            return a - b
+        else:
+            return 0 
 
 
 def run_pointer(speed:float, pointer_char:str, pointer_ref:str, shared_var):
@@ -87,17 +94,6 @@ class type_terminal(object):
             
         except Exception as e:
             self.log(e.args[-1])
-    
-            
-    def fit_line_from_flush(self):
-        print()
-        
-        
-    def _subtract(self, a, b):
-        if a >= b:
-            return a - b
-        else:
-            return 0
         
         
     def info(self, text:str='', write_file_path: bool=False, Flush: bool=False):       
@@ -132,10 +128,10 @@ class type_terminal(object):
             self.shared_var.value = False
             
             if self.onflush:
-                self.fit_line_from_flush()
+                print()
                 self.onflush = False
 
-            print(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * self._subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|')
+            print(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|')
                         
             if is_pointer_time:
                 console.pointer()
@@ -144,7 +140,7 @@ class type_terminal(object):
             self.shared_var.value = False
             self.onflush = True
             
-            print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * self._subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
+            print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
         
         if write_file_path:
             self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
