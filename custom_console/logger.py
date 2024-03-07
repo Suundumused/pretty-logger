@@ -1,7 +1,6 @@
 import os
 import threading
 import time
-import atexit
 
 from datetime import datetime 
 
@@ -33,7 +32,6 @@ class bcolors:
 
 class type_terminal(object):
     def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):
-        atexit.register(self.exit_handler)            
         self.software_name = name
         self.current_software_name = name
         self.path = path
@@ -52,7 +50,7 @@ class type_terminal(object):
                 log_file.write(f"{value}\n")
             
         except Exception as e:
-            self.log('Error writing to log file', e)
+            self.log(e.args[-1])
     
             
     def fit_line_from_flush(self):
@@ -65,37 +63,32 @@ class type_terminal(object):
         else:
             return 0
         
+        
+    def info(self, text:str='', write_file_path: bool=False, Flush: bool=False):       
+        self.log(bcolors.BG_WHITE, bcolors.BLACK, 'INFO', text, write_file_path, Flush)
+        
+    def ok(self, text:str='', write_file_path: bool=False, Flush: bool=False):
+        self.log(bcolors.BG_GREEN, bcolors.BLACK, 'OK', text, write_file_path, Flush)
+    
+    def warning(self, text:str='', write_file_path: bool=False, Flush: bool=False):
+        self.log(bcolors.BG_YELLOW, bcolors.BLACK, 'WARNING', text, write_file_path, Flush)  
+        
+    def error(self, text:str='', write_file_path: bool=False, Flush: bool=False):        
+        self.log(bcolors.BG_RED, bcolors.WHITE, 'ERROR', text, write_file_path, Flush)
+    
 
-    def str_starting_type(self, start:str):
-        match start.lower():
-            case 'info':
-                return bcolors.BG_WHITE, bcolors.BLACK
-            case 'ok':
-                return bcolors.BG_GREEN, bcolors.BLACK
-            case 'warning':
-                return bcolors.BG_YELLOW, bcolors.BLACK
-            case 'error':
-                return bcolors.BG_RED, bcolors.WHITE
-            case _:
-                return bcolors.BG_WHITE, bcolors.BLACK
-            
-
-    def log(self, start: str="info", middle: str="", write_file_path: bool=False, Flush: bool=False):
+    def log(self, bg_color:str, fg_color:str, start:str, middle:str, write_file_path:bool, Flush:bool):
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
         
         pointer_ref:str =''
+        title_len = range(len(formatted_date_time)+2)
         
-        title_len = len(formatted_date_time)
-        title_len_a = range(title_len+2)
-        
-        for _ in title_len_a:    
+        for _ in title_len:    
             pointer_ref += ' '
-        
         self.pointer_ref = pointer_ref
     
-        bg_color, fg_color = self.str_starting_type(start)
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
         if not Flush:
@@ -159,30 +152,23 @@ class type_terminal(object):
         pointer_run = threading.Thread(target=self.run_pointer)
         pointer_run.daemon = True
         pointer_run.start()
-
-
-    def exit_handler(self):
-        if self.pointer_runtime:
-            self.pointer_runtime = False
-            time.sleep(1 - self.speed)
-            print('', end='\r', flush=True)
             
             
 if __name__ == "__main__":
     console  =  type_terminal('program', 'E:/PyProjs/New folder', speed=0.998)
     console.pointer()
 
-    console.log('ok', 'Something to show...') #simple print, without writing to the log file and without being on one line.
+    console.ok('Something to show...') #simple print, without writing to the log file and without being on one line.
     time.sleep(1)
 
     i  =  0
     while  i  <=  5:
-        console.log('info', f'Progress: {i}%', Flush  =  True) #print in just one line.
+        console.info(f'Progress: {i}%', Flush  =  True) #print in just one line.
         i+=1
         time.sleep(0.33)
 
-    console.log('error', 'Any ERROR OCCURRED to LOG file...', write_file_path  =  True) #printing and writing to the log.
-    console.log('warning', 'Any WARNING... OCCURRED to log file...')
+    console.error('Any ERROR OCCURRED to LOG file...', write_file_path  =  True) #printing and writing to the log.
+    console.warning('Any WARNING... OCCURRED to log file...')
     
     console.pointer()
     time.sleep(3)

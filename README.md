@@ -28,7 +28,7 @@
  - Your project must have somewhat latent code or have recursion to be displayed.
 ---
 ### Print
-    console.log('info', 'Process terminated by machine user.')
+    console.info('Process terminated by machine user.')
 **Available colour options:** 
  - '`ok`': GREEN, 
  - '`info`': WHITE, 
@@ -36,8 +36,8 @@
  - '`error`': RED
 ---
 
-    console.log('error', 'some error....', write_file_path = True)
-    console.log('info', f'single_line_{i}%', Flush = True)
+    console.error('some error....', write_file_path = True)
+    console.info(f'single_line_{i}%', Flush = True)
 
  - `write_file_path = True` It will write a new line to the log file with exactly the same information as the print except the colors.
  - `Flush = True`  It will print in just one line for every hit.
@@ -48,18 +48,18 @@
         console  =  type_terminal('program', 'E:/PyProjs/New folder', speed=0.998)
         console.pointer()
 
-        console.log('ok', 'Something to show...') #simple print, without writing to the log file and without being on one line.
+        console.ok('Something to show...') #simple print, without writing to the log file and without being on one line.
         time.sleep(1)
 
         i  =  0
         while  i  <=  5:
-            console.log('info', f'Progress: {i}%', Flush  =  True) #print in just one line.
+            console.info(f'Progress: {i}%', Flush  =  True) #print in just one line.
             i+=1
             time.sleep(0.33)
 
-        console.log('error', 'Any ERROR OCCURRED to LOG file...', write_file_path  =  True) #printing and writing to the log.
-        console.log('warning', 'Any WARNING... OCCURRED to log file...')
-    
+        console.error('Any ERROR OCCURRED to LOG file...', write_file_path  =  True) #printing and writing to the log.
+        console.warning('Any WARNING... OCCURRED to log file...')
+        
         console.pointer()
         time.sleep(3) 
         #anything else...
