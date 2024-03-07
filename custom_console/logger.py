@@ -12,16 +12,13 @@ def _subtract(a, b):
             return 0 
 
 
-def run_pointer(speed:float, pointer_char:str, pointer_ref:str, shared_var):
+def run_pointer(speed:float, pointer_char:str, pointer_ref:str):
     reverse = False
     range_pointer_ref = range(len(pointer_ref))
     
     try:
-        while shared_var.value:
-            for i in range_pointer_ref:
-                if not shared_var.value:
-                    break
-                
+        while True:
+            for i in range_pointer_ref:                
                 if reverse:
                     index = len(pointer_ref)-1 - i
                     
@@ -32,11 +29,8 @@ def run_pointer(speed:float, pointer_char:str, pointer_ref:str, shared_var):
                     
                     if index != 0:
                         time.sleep(1 - speed)
-                
-                if shared_var.value:
-                    print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
-                else:
-                    break
+            
+                print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
                     
             if reverse:
                 reverse = False
@@ -83,8 +77,10 @@ class type_terminal(object):
         self.time_format = time_format
         self.pointer_char = pointer_char
         
+        self.title_len = range(len(datetime.now().strftime(time_format))+2)
         self.onflush = False
         self.pointer_ref = ''
+        self.pointer_run = multiprocessing.Process
                     
             
     def custom_logger(self, value):
@@ -113,19 +109,16 @@ class type_terminal(object):
         current_datetime = datetime.now()
         formatted_date_time = current_datetime.strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
-        
-        pointer_ref:str =''
-        title_len = range(len(formatted_date_time)+2)
-        
-        for _ in title_len:    
-            pointer_ref += ' '
-        self.pointer_ref = pointer_ref
+    
+        self.title_len = range(len(formatted_date_time)+2)
     
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
         if not Flush:
-            is_pointer_time = self.shared_var.value
-            self.shared_var.value = False
+            is_pointer_time = self.pointer_run.is_alive()
+                
+            if is_pointer_time:
+                self.pointer_run.terminate()
             
             if self.onflush:
                 print()
@@ -135,9 +128,8 @@ class type_terminal(object):
                         
             if is_pointer_time:
                 console.pointer()
-                pass
         else:
-            self.shared_var.value = False
+            self.pointer_run.terminate()
             self.onflush = True
             
             print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
@@ -146,12 +138,14 @@ class type_terminal(object):
             self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
             
             
-    def pointer(self):
-        self.shared_var.value = True
+    def pointer(self):       
+        pointer_ref=''
+        for _ in self.title_len:    
+            pointer_ref += ' '
                 
-        pointer_run = multiprocessing.Process(target=run_pointer, args=(self.speed, self.pointer_char, self.pointer_ref, self.shared_var, ))
-        pointer_run.daemon = True
-        pointer_run.start()
+        self.pointer_run = multiprocessing.Process(target=run_pointer, args=(self.speed, self.pointer_char, pointer_ref, ))
+        self.pointer_run.daemon = True
+        self.pointer_run.start()
             
             
 if __name__ == "__main__":
