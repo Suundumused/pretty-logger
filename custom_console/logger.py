@@ -15,23 +15,24 @@ def _subtract(a, b):
 def run_pointer(speed:float, pointer_char:str, pointer_ref:str):
     reverse = False
     range_pointer_ref = range(len(pointer_ref))
+    len_pointer_ref = len(pointer_ref)-1
+    velocity = 1 - speed
     
     try:
         while True:
             for i in range_pointer_ref:                
                 if reverse:
-                    index = len(pointer_ref)-1 - i
+                    index = len_pointer_ref - i
                     
-                    if index != len(pointer_ref)-1:
-                        time.sleep(1 - speed)      
+                    if index != len_pointer_ref:
+                        time.sleep(velocity)      
                 else:
                     index = i
-                    
+
                     if index != 0:
-                        time.sleep(1 - speed)
-            
-                print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
-                    
+                        time.sleep(velocity)
+    
+                print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)     
             if reverse:
                 reverse = False
             else:
@@ -66,7 +67,7 @@ class bcolors:
     
 
 class type_terminal(object):
-    def __init__(self, name, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):        
+    def __init__(self, name:str=__name__, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):        
         self.software_name = name
         self.current_software_name = name
         self.path = path
@@ -78,13 +79,13 @@ class type_terminal(object):
         self.onflush = False
         self.pointer_ref = ''
         self.pointer_run = multiprocessing.Process
+        
+        self.log_file = open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8')
                     
             
     def custom_logger(self, value):
         try:
-            with open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8') as log_file:               
-                log_file.write(f"{value}\n")
-            
+            self.log_file.write(f"{value}\n")
         except Exception as e:
             self.log(e.args[-1])
         
@@ -103,29 +104,34 @@ class type_terminal(object):
     
 
     def log(self, bg_color:str, fg_color:str, start:str, middle:str, write_file_path:bool, Flush:bool):
-        current_datetime = datetime.now()
-        formatted_date_time = current_datetime.strftime(self.time_format)
+        formatted_date_time = datetime.now().strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
         self.title_len = range(len(formatted_date_time)+2)
     
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
-        is_pointer_time = self.pointer_run.is_alive()
-        if is_pointer_time:
-            self.pointer_run.terminate()
-        
-        if not Flush:
+        def console_flush():
             if self.onflush:
                 self.onflush = False
                 print()
 
             print(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|')
-                        
-            if is_pointer_time:
+        
+        is_pointer_time = self.pointer_run.is_alive()
+        if is_pointer_time:
+            self.pointer_run.terminate()
+            if not Flush:
+                console_flush()
                 console.pointer()
+            else:
+                self.onflush = True
+                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)
         else:
-            self.onflush = True
-            print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)            
+            if not Flush:
+                console_flush()
+            else:
+                self.onflush = True
+                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)          
         
         if write_file_path:
             self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
