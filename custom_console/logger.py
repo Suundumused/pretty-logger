@@ -5,14 +5,14 @@ import time
 from datetime import datetime
 
 
-def _subtract(a, b):
+def _subtract(a:int, b:int) -> int:
         if a >= b:
             return a - b
         else:
             return 0 
 
 
-def run_pointer(speed:float, pointer_char:str, pointer_ref:str):
+def run_pointer(speed:float, pointer_char:str, pointer_ref:str) -> None:
     reverse = False
     range_pointer_ref = range(len(pointer_ref))
     len_pointer_ref = len(pointer_ref)-1
@@ -67,7 +67,7 @@ class bcolors:
     
 
 class type_terminal(object):
-    def __init__(self, name:str=__name__, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮'):        
+    def __init__(self, name:str=__name__, path:str=None, speed:float=0.937, time_format:str="%Y-%m-%d %H:%M:%S", pointer_char:str='⚮') -> None:        
         self.software_name = name
         self.current_software_name = name
         self.path = path
@@ -83,34 +83,34 @@ class type_terminal(object):
         self.log_file = open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8')
                     
             
-    def custom_logger(self, value):
+    def custom_logger(self, value:str) -> None:
         try:
             self.log_file.write(f"{value}\n")
         except Exception as e:
             self.log(e.args[-1])
         
         
-    def info(self, text:str='', write_file_path: bool=False, Flush: bool=False):       
+    def info(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:       
         self.log(bcolors.BG_WHITE, bcolors.BLACK, 'INFO', text, write_file_path, Flush)
         
-    def ok(self, text:str='', write_file_path: bool=False, Flush: bool=False):
+    def ok(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:
         self.log(bcolors.BG_GREEN, bcolors.BLACK, 'OK', text, write_file_path, Flush)
     
-    def warning(self, text:str='', write_file_path: bool=False, Flush: bool=False):
+    def warning(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:
         self.log(bcolors.BG_YELLOW, bcolors.BLACK, 'WARNING', text, write_file_path, Flush)  
         
-    def error(self, text:str='', write_file_path: bool=False, Flush: bool=False):        
+    def error(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:        
         self.log(bcolors.BG_RED, bcolors.WHITE, 'ERROR', text, write_file_path, Flush)
     
 
-    def log(self, bg_color:str, fg_color:str, start:str, middle:str, write_file_path:bool, Flush:bool):
+    def log(self, bg_color:str, fg_color:str, start:str, middle:str, write_file_path:bool, Flush:bool) -> None:
         formatted_date_time = datetime.now().strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
         self.title_len = range(len(formatted_date_time)+2)
     
         values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
         
-        def console_flush():
+        def console_flush() -> None:
             if self.onflush:
                 self.onflush = False
                 print()
@@ -137,7 +137,7 @@ class type_terminal(object):
             self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
             
             
-    def pointer(self):       
+    def pointer(self) -> None:       
         pointer_ref=''
         for _ in self.title_len:    
             pointer_ref += ' '
@@ -147,7 +147,7 @@ class type_terminal(object):
         self.pointer_run.start()
             
             
-if __name__ == "__main__":
+if __name__ == "__main__": #test
     console  =  type_terminal('program', 'E:/PyProjs/New folder', speed=0.998)
     console.pointer()
 
