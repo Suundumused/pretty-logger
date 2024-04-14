@@ -5,6 +5,7 @@ import time
 from datetime import datetime
 
 
+@staticmethod
 def _subtract(a:int, b:int) -> int:
         if a >= b:
             return a - b
@@ -13,30 +14,26 @@ def _subtract(a:int, b:int) -> int:
 
 
 def run_pointer(speed:float, pointer_char:str, pointer_ref:str) -> None:
-    reverse = False
-    range_pointer_ref = range(len(pointer_ref))
+    range_pointer_ref = range(1, len(pointer_ref))
     len_pointer_ref = len(pointer_ref)-1
     velocity = 1 - speed
     
+    def pointer_forward():
+        for index in range_pointer_ref:
+            print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
+            time.sleep(velocity)
+            
+    def pointer_backward():
+        for i in range_pointer_ref:
+            index = len_pointer_ref - i
+            print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)
+            time.sleep(velocity)
     try:
         while True:
-            for i in range_pointer_ref:                
-                if reverse:
-                    index = len_pointer_ref - i
-                    
-                    if index != len_pointer_ref:
-                        time.sleep(velocity)      
-                else:
-                    index = i
-
-                    if index != 0:
-                        time.sleep(velocity)
-    
-                print(f'|{pointer_ref[:index]}{pointer_char}{pointer_ref[index+1:]}|', end='\r', flush=True)     
-            if reverse:
-                reverse = False
-            else:
-                reverse = True
+            pointer_forward()                
+            time.sleep(velocity)      
+            pointer_backward()
+            time.sleep(velocity)
     except:
         return
 
@@ -80,6 +77,7 @@ class type_terminal(object):
         self.pointer_ref = ''
         self.pointer_run = multiprocessing.Process
         
+        os.makedirs(path, exist_ok=True)
         self.log_file = open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8')
                     
             
@@ -91,50 +89,63 @@ class type_terminal(object):
         
         
     def info(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:       
-        self.log(bcolors.BG_WHITE, bcolors.BLACK, 'INFO', text, write_file_path, Flush)
+        self.log(bcolors.BG_WHITE, bcolors.BLACK, 'INFO   ', text, write_file_path, Flush)
+    
         
     def ok(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:
-        self.log(bcolors.BG_GREEN, bcolors.BLACK, 'OK', text, write_file_path, Flush)
+        self.log(bcolors.BG_GREEN, bcolors.BLACK, 'OK     ', text, write_file_path, Flush)
+    
     
     def warning(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:
         self.log(bcolors.BG_YELLOW, bcolors.BLACK, 'WARNING', text, write_file_path, Flush)  
+       
         
     def error(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:        
-        self.log(bcolors.BG_RED, bcolors.WHITE, 'ERROR', text, write_file_path, Flush)
+        self.log(bcolors.BG_RED, bcolors.WHITE, 'ERROR  ', text, write_file_path, Flush)
     
 
     def log(self, bg_color:str, fg_color:str, start:str, middle:str, write_file_path:bool, Flush:bool) -> None:
         formatted_date_time = datetime.now().strftime(self.time_format)
         terminal_size = os.get_terminal_size().columns
         self.title_len = range(len(formatted_date_time)+2)
-    
-        values_text = (f'{formatted_date_time}', f'{start.upper()}', middle)
+                
+        len_starting_text = len(formatted_date_time) + len(start) + 20
+        starting_spaces = f"|{'-' * (len_starting_text-5)}|{bcolors.BG_BLUE} "
+        real_terminal_size = terminal_size - len_starting_text
         
-        def console_flush() -> None:
+        def console_flush(starting_text:str, middle:str) -> None:
             if self.onflush:
                 self.onflush = False
                 print()
 
-            print(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|')
+            while len(middle) > real_terminal_size:
+                print(f'{starting_text}{middle[:real_terminal_size]} {bcolors.BG_BLACK}|')
+                middle = middle[real_terminal_size:]
+                starting_text = starting_spaces
+            else:
+                len_full_text = len(middle) + len_starting_text
+                print(f'{starting_text}{middle} {" " * _subtract(terminal_size, len_full_text)}{bcolors.BG_BLACK}|')
         
         is_pointer_time = self.pointer_run.is_alive()
         if is_pointer_time:
             self.pointer_run.terminate()
             if not Flush:
-                console_flush()
+                console_flush(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{formatted_date_time}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{start}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} ', middle)
                 console.pointer()
             else:
                 self.onflush = True
-                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)
+                len_full_text = len(middle) + len_starting_text
+                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{formatted_date_time}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{start}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {middle} {" " * _subtract(terminal_size, len_full_text)}{bcolors.BG_BLACK}|', end='', flush=True)
         else:
             if not Flush:
-                console_flush()
+                console_flush(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{formatted_date_time}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{start}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} ', middle)
             else:
                 self.onflush = True
-                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{values_text[0]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{values_text[1]}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {values_text[2]} {" " * _subtract(terminal_size-20, len("".join(values_text)))}{bcolors.BG_BLACK}|', end='', flush=True)          
+                len_full_text = len(middle) + len_starting_text
+                print(f'\r|{bcolors.BG_WHITE} {bcolors.BLACK}{formatted_date_time}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{start}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} {middle} {" " * _subtract(terminal_size, len_full_text)}{bcolors.BG_BLACK}|', end='', flush=True)          
         
         if write_file_path:
-            self.custom_logger(f'| {values_text[0]} | :: | {values_text[1]} | :: | {values_text[2]} |')
+            self.custom_logger(f'| {formatted_date_time} | :: | {start} | :: | {middle}')
             
             
     def pointer(self) -> None:       
@@ -155,12 +166,12 @@ if __name__ == "__main__": #test
     time.sleep(1)
 
     i  =  0
-    while  i  <=  5:
+    while  i  <=  4:
         console.info(f'Progress: {i}%', Flush  =  True) #print in just one line.
         i+=1
-        time.sleep(0.33)
+        time.sleep(0.25)
 
-    console.error('Any ERROR OCCURRED to LOG file...', write_file_path  =  True) #printing and writing to the log.
+    console.error('Paragraphs are now supported: The French Revolution (1789-1799) was a transformative event in France and the world. It arose from widespread dissatisfaction with absolute monarchy, marked by social, economic, and political inequality. Initiated with the convocation of the Estates-General in 1789, it quickly turned into a popular movement that overthrew the monarchy, executed King Louis XVI, and established the Republic. The Revolution brought about a series of radical changes, including the abolition of the Ancien Régime, the promulgation of the Declaration of the Rights of Man and of the Citizen proclaiming equality before the law and freedom of expression, and the implementation of secular measures like the revolutionary calendar...', write_file_path  =  True) #printing and writing to the log.
     console.warning('Any WARNING... OCCURRED to log file...')
     
     console.pointer()

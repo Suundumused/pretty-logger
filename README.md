@@ -1,6 +1,6 @@
 ﻿# pretty-logger
 ### A simple, custom print and file logger for any project.
-![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111461.png?raw=true)
+![Alt text](https://github.com/Suundumused/pretty-logger/blob/main/README_assets/111462.png?raw=true)
 ---
 ### Requirements
 **Minimum Version**: `python 3.6... ...`
@@ -65,11 +65,11 @@
         #anything else...
 ---
 ### Log File result
-    | 2024-03-04 22:41:15 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
-    | 2024-03-04 22:41:45 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
-    | 2024-03-04 22:41:55 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
-    | 2024-03-04 22:43:17 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
-    | 2024-03-04 22:43:26 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file... |
+    | 2024-03-04 22:41:15 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file...
+    | 2024-03-04 22:41:45 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file...
+    | 2024-03-04 22:41:55 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file...
+    | 2024-03-04 22:43:17 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file...
+    | 2024-03-04 22:43:26 | :: | ERROR | :: | Any ERROR OCCURRED to LOG file...
 ---
 ## 💖 Support Me
 
