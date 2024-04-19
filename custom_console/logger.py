@@ -78,13 +78,13 @@ class type_terminal(object):
         self.pointer_run = multiprocessing.Process
         
         os.makedirs(path, exist_ok=True)
-        self.logger_path = os.path.join(self.path, f'{self.software_name}.log')
+        self.log_file = open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8')
                     
             
     def custom_logger(self, value:str) -> None:
         try:
-            with open(self.logger_path, 'a', encoding='utf-8') as log_file:
-                log_file.write(f"{value}\n")
+            self.log_file.write(f"{value}\n")
+            self.log_file.flush()
         except Exception as e:
             self.error(f'While writing to logfile: {e.args[-1]}')
         
