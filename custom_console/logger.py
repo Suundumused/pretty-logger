@@ -78,14 +78,15 @@ class type_terminal(object):
         self.pointer_run = multiprocessing.Process
         
         os.makedirs(path, exist_ok=True)
-        self.log_file = open(os.path.join(self.path, f'{self.software_name}.log'), 'a', encoding='utf-8')
+        self.logger_path = os.path.join(self.path, f'{self.software_name}.log')
                     
             
     def custom_logger(self, value:str) -> None:
         try:
-            self.log_file.write(f"{value}\n")
+            with open(self.logger_path, 'a', encoding='utf-8') as log_file:
+                log_file.write(f"{value}\n")
         except Exception as e:
-            self.log(e.args[-1])
+            self.error(f'While writing to logfile: {e.args[-1]}')
         
         
     def info(self, text:str='', write_file_path: bool=False, Flush: bool=False) -> None:       
@@ -126,8 +127,7 @@ class type_terminal(object):
                 len_full_text = len(middle) + len_starting_text
                 print(f'{starting_text}{middle} {" " * _subtract(terminal_size, len_full_text)}{bcolors.BG_BLACK}|')
         
-        is_pointer_time = self.pointer_run.is_alive()
-        if is_pointer_time:
+        if self.pointer_run.is_alive():
             self.pointer_run.terminate()
             if not Flush:
                 console_flush(f'|{bcolors.BG_WHITE} {bcolors.BLACK}{formatted_date_time}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bg_color} {fg_color}{start}{bcolors.WHITE} {bcolors.BG_BLACK}| :: |{bcolors.BG_BLUE} ', middle)
@@ -146,6 +146,15 @@ class type_terminal(object):
         
         if write_file_path:
             self.custom_logger(f'| {formatted_date_time} | :: | {start} | :: | {middle}')
+            
+            
+    def wrap_line(self, write_file_path:bool=False):
+        print()
+        if self.onflush:
+            self.onflush = False
+            print()
+        if write_file_path:
+            self.custom_logger('')
             
             
     def pointer(self) -> None:       
