@@ -148,7 +148,7 @@ class type_terminal(object):
             self.custom_logger(f'| {formatted_date_time} | :: | {start} | :: | {middle}')
             
             
-    def wrap_line(self, write_file_path:bool=False):
+    def wrap_line(self, write_file_path:bool=False) -> None:
         print()
         if self.onflush:
             self.onflush = False
